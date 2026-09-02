@@ -1,0 +1,6 @@
+@InfrastructureLayerDeepDive.Weather.API_HostAddress = http://localhost:5117
+
+GET {{InfrastructureLayerDeepDive.Weather.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

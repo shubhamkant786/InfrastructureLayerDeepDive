@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "InfrastructureLayerDeepDive.Weather.Infrastructure.Dependencies.GRPCDependency";
+
+package weather;
+
+service WeatherService {
+  rpc GetForecasts (GetForecastsRequest) returns (GetForecastsResponse);
+}
+
+message GetForecastsRequest {
+}
+
+message ForecastMessage {
+  string date = 1;
+  int32 temperatureC = 2;
+  string summary = 3;
+}
+
+message GetForecastsResponse {
+  repeated ForecastMessage forecasts = 1;
+}
