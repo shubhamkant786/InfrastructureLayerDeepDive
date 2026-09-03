@@ -7,5 +7,13 @@
         public int TemperatureC { get; set; }
 
         public string? Summary { get; set; }
+
+        public IEnumerable<WeatherPoint> WeatherPoints { get; set; } = new List<WeatherPoint>();
+    }
+
+    public class WeatherPoint
+    {
+        public int MaxTemperatureC { get; set; }
+        public int MinTemperatureC { get; set; }
     }
 }

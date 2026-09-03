@@ -33,7 +33,15 @@ namespace InfrastructureLayerDeepDive.Weather.Infrastructure
         {
             services.AddSingleton<CosmosDbContext>();
 
-            services.AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(sqlServerConnectionString)
+            services.AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(sqlServerConnectionString, sqlOptions=>
+               {
+                   sqlOptions.UseNetTopologySuite();
+                   sqlOptions.EnableRetryOnFailure(
+                       maxRetryCount: 3,
+                       maxRetryDelay: TimeSpan.FromSeconds(5),
+                       errorNumbersToAdd: null);
+               })
+            
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors()

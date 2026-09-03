@@ -1,3 +1,4 @@
+using BelgianRail.Atms.BFF.Application.Core.Utilities;
 using InfrastructureLayerDeepDive.Weather.Infrastructure;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Caching.DistributedRedis;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Caching.InMemory;
@@ -8,6 +9,7 @@ using InfrastructureLayerDeepDive.Weather.Infrastructure.Mesaging.Azure.EventHub
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Mesaging.Azure.ServiceBus;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Mesaging.IBM.MQ;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Mesaging.Kafka;
+using InfrastructureLayerDeepDive.Weather.Infrastructure.Monitoring.ApplicationInsight;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Notifications.Email;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Notifications.Push;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Notifications.Sms;
@@ -15,11 +17,15 @@ using InfrastructureLayerDeepDive.Weather.Infrastructure.Repositories.Cosmos;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Repositories.Oracle;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Repositories.Postgres;
 using InfrastructureLayerDeepDive.Weather.Infrastructure.Repositories.SqlServer;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Org.BouncyCastle.Asn1.X509;
 using System.Configuration;
+using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
+using Twilio.TwiML.Voice;
+using Twilio.Types;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +35,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddSingleton<ITelemetryInitializer>(new CloudRoleNameTelemetryInitializer("Weather-API"));
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<ITelemetryInitializer, RequestBodyTelemetryInitializer>();
 
 var cosmosConfiguration = builder.Configuration.GetSection("CosmosDb").Get<CosmosDbOptions>();
 var sqlServerConfiguration = builder.Configuration.GetSection("SqlServerDb").Get<SqlServerDbOptions>();
@@ -123,9 +134,13 @@ var httpClientBuilder = builder.Services.AddHttpClient<IWeatherRestClient, Weath
         client.DefaultRequestHeaders.Add(options.ApiKeyName, options.ApiKeyValue);
         client.DefaultRequestHeaders.Add("Accept", "application/json");
         client.DefaultRequestHeaders.Add("User-Agent", ".net application");
-        
     }
 });
+//if (true)
+//{
+//    httpClientBuilder.ConfigureHttpClient(client => client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+//         Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{options.Username}:{options.Password}"))));
+//}
 if (options.IsCertificateValidationEnabled)
 {
     var certificatePath = Path.Combine(AppContext.BaseDirectory, options.CertificateName);

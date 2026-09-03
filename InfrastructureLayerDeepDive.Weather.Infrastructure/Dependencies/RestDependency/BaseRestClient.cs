@@ -47,6 +47,7 @@ namespace InfrastructureLayerDeepDive.Weather.Infrastructure.Dependencies.RestDe
                 var accessToken = await tokenAquisition.GetAccessTokenForAppAsync("appscope");
                 httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             }
+            
             var httpResponse = await httpClient.SendAsync(httpRequest, cancellationToken);
             if (!httpResponse.IsSuccessStatusCode)
             {

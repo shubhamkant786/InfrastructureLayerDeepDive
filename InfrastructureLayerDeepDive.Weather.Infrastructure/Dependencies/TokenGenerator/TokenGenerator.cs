@@ -18,7 +18,7 @@ namespace InfrastructureLayerDeepDive.Weather.Infrastructure.Dependencies.TokenG
             var httpClient = httpClientFactory.CreateClient();
             var base64Encoding = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_options.ClientId}:{_options.ClientSecret}"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", base64Encoding);
-
+            
             var bodyParams = new Dictionary<string, string>
             {
                 { "grant_type", "client_credentials" }
